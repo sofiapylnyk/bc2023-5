@@ -7,7 +7,6 @@ const path = require("path"); // Підключення модуля для ро
 const port = 8000;
 // Встановлення кореневого каталогу для статичних файлів
 app.use(express.static(__dirname));
-
 app.get("/", (req, res) => {
     try {
         res.status(200).send("Go to localhost:8000/UploadForm.html");
@@ -15,7 +14,6 @@ app.get("/", (req, res) => {
         res.status(500).send("Server error");
     }
 });
-
 // Повернути головну сторінку UploadForm
 app.get("/UploadForm.html", (req, res) => {
     const filePath = path.join(__dirname, "static/UploadForm.html");
@@ -27,7 +25,6 @@ app.get("/UploadForm.html", (req, res) => {
         }
     });
 });
-
 // Повернути вміст notes.js на адресу /notes
 app.get("/notes", (req, res) => {
   const filePath = path.join(__dirname, "notes.json");
@@ -44,7 +41,6 @@ app.get("/notes", (req, res) => {
     }
   });
 });
-
 // Повернути текст нотатки за імям
 app.get("/notes/:noteName", (req, res) => {
     const noteName = req.params.noteName;
@@ -59,7 +55,8 @@ app.get("/notes/:noteName", (req, res) => {
         const notes = JSON.parse(notesData);
         const foundNote = notes.find((note) => note.note_name === noteName);
         if (foundNote) {
-          res.status(200).json(foundNote.note_text);
+          const textFromNote = foundNote.note_text.toString();
+          res.status(200).send(textFromNote);
         } else {
           // Якщо нотатка з вказаним ім'ям не знайдена, вивести помилку 404
           res.status(404).send("Note not found.");
@@ -67,11 +64,9 @@ app.get("/notes/:noteName", (req, res) => {
       }
     });
   });
-
 app.post("/upload", upload.single("note"), (req, res) => {
     const noteName = req.body.note_name;
     const noteText = req.body.note;
-  
     // Перевірка наявності нотатки з вказаним ім'ям
     fs.readFile("notes.json", "utf8", (err, notesData) => {
       if (err) {
@@ -97,7 +92,6 @@ app.post("/upload", upload.single("note"), (req, res) => {
       }
     });
   });
-  
 app.put("/notes/:noteName", (req, res) => {
     const noteName = req.params.noteName; // Отримуємо ім'я нотатки з параметрів запиту
     const filePath = path.join(__dirname, "notes.json");
@@ -134,12 +128,10 @@ app.put("/notes/:noteName", (req, res) => {
         res.status(400).send("Invalid request body.");
       }
     });
-  });
-  
+  }); 
 app.delete("/notes/:noteName", (req, res) => {
     const noteName = req.params.noteName;
     const filePath = path.join(__dirname, "notes.json");
-  
     fs.access(filePath, fs.constants.F_OK, (err) => {
       if (err) {
         // Якщо файл не існує, вивести помилку 404
@@ -165,7 +157,6 @@ app.delete("/notes/:noteName", (req, res) => {
       }
     });
   });
-  
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
